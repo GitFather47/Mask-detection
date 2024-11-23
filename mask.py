@@ -138,4 +138,4 @@ elif nav_option == "About":
     st.write( "Student at American International University Bangladesh")
     st.write( "Dhaka,Bangladesh")
     st.write( "For more information, please contact me at my email.")
-    st.write("Email:aicharnob@gmail.com")TypeError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
+    st.write("Email:aicharnob@gmail.com")
