@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 
 # Load the trained Keras model (replace with the correct .keras file)
-model = load_model('mask_model.keras')  # Load the Keras model
+model = load_model('mask.keras')  # Load the Keras model
 
 # Function to preprocess the image
 def preprocess_image(image):
