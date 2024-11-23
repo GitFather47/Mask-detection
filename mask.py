@@ -5,8 +5,8 @@ from tensorflow.keras.preprocessing import image as keras_image
 from tensorflow.keras.models import load_model
 from PIL import Image
 
-# Load the trained Keras model (replace with the correct .h5 file)
-model = load_model('mask_model.h5')  # Load the Keras model
+# Load the trained Keras model (replace with the correct .keras file)
+model = load_model('mask_model.keras')  # Load the Keras model
 
 # Function to preprocess the image
 def preprocess_image(image):
