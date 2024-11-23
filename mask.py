@@ -1,26 +1,20 @@
 import streamlit as st
 import numpy as np
-import torch
-from torchvision import transforms
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image as keras_image
+from tensorflow.keras.models import load_model
 from PIL import Image
 
-# Load the trained model (replace with .pt or .pth file)
-model = torch.load('mask_model.pth')  # Load the PyTorch model
-model.eval()  # Set the model to evaluation mode
+# Load the trained Keras model (replace with the correct .h5 file)
+model = load_model('mask_model.h5')  # Load the Keras model
 
 # Function to preprocess the image
 def preprocess_image(image):
     # Define the transformation
-    preprocess = transforms.Compose([
-        transforms.Resize((128, 128)),
-        transforms.ToTensor(),  # Convert image to tensor
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalize
-    ])
-    # Apply the transformations
-    image_tensor = preprocess(image)
-    # Add an extra dimension (for batch size) and ensure shape is [1, 3, 128, 128]
-    image_reshaped = image_tensor.unsqueeze(0)  # Adds a batch dimension
-    return image_reshaped
+    preprocess = keras_image.img_to_array(image)  # Convert image to array
+    preprocess = np.expand_dims(preprocess, axis=0)  # Add an extra dimension (for batch size)
+    preprocess = preprocess / 255.0  # Normalize to [0, 1]
+    return preprocess
 
 # Streamlit app
 st.title("Face Mask Detection")
@@ -38,9 +32,8 @@ if uploaded_file is not None:
     input_image_reshaped = preprocess_image(image)
 
     # Make prediction
-    with torch.no_grad():  # Disable gradient calculation
-        input_prediction = model(input_image_reshaped)
-        input_pred_label = torch.argmax(input_prediction).item()  # Get the predicted class index
+    prediction = model.predict(input_image_reshaped)  # Predict using the Keras model
+    input_pred_label = np.argmax(prediction, axis=1).item()  # Get the predicted class index
 
     # Display result
     if input_pred_label == 1:
