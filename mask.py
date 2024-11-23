@@ -32,13 +32,6 @@ st.markdown("""
             text-align: center;
             color: #4CAF50;
         }
-        .nav-bar {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
         .container {
             display: flex;
             justify-content: center;
@@ -70,64 +63,38 @@ st.markdown("""
             margin-top: 20px;
             text-align: center;
         }
-        .about-section {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .about-section h3 {
-            color: #4CAF50;
-        }
     </style>
 """, unsafe_allow_html=True)
 
-# Navigation Bar (Sidebar for easy navigation)
-st.sidebar.title("Navigation")
-nav_option = st.sidebar.radio("Go to:", ["Home", "About"])
+# Streamlit app
+st.markdown("<h1 class='header'>Face Mask Detection</h1>", unsafe_allow_html=True)
+st.write("Upload an image to check if the person is wearing a mask.")
 
-# Home Page: Face Mask Detection
-if nav_option == "Home":
-    st.markdown("<h1 class='header'>Face Mask Detection</h1>", unsafe_allow_html=True)
-    st.write("Upload an image to check if the person is wearing a mask.")
+# Upload image section
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "webp"], key="image_uploader")
+
+if uploaded_file is not None:
+    # Display the uploaded image with custom styling
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image', use_column_width=True, class_="uploaded-image")
     
-    # Upload image section
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "webp"], key="image_uploader")
+    # Preprocess the image
+    input_image_reshaped = preprocess_image(image)
 
-    if uploaded_file is not None:
-        # Display the uploaded image with custom styling
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Image', use_column_width=True, class_="uploaded-image")
-        
-        # Preprocess the image
-        input_image_reshaped = preprocess_image(image)
+    # Make prediction
+    prediction = model.predict(input_image_reshaped)  # Predict using the Keras model
+    input_pred_label = np.argmax(prediction, axis=1).item()  # Get the predicted class index
 
-        # Make prediction
-        prediction = model.predict(input_image_reshaped)  # Predict using the Keras model
-        input_pred_label = np.argmax(prediction, axis=1).item()  # Get the predicted class index
+    # Display prediction result with styling
+    prediction_text = ""
+    if input_pred_label == 1:
+        prediction_text = "The person in the image is **not wearing a mask**."
+    else:
+        prediction_text = "The person in the image is **wearing a mask**."
 
-        # Display prediction result with styling
-        prediction_text = ""
-        if input_pred_label == 1:
-            prediction_text = "The person in the image is **not wearing a mask**."
-        else:
-            prediction_text = "The person in the image is **wearing a mask**."
-
-        st.markdown(f"""
-            <div class="prediction">
-                <h4>Prediction Result</h4>
-                <p>{prediction_text}</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-# About Section
-elif nav_option == "About":
-    st.markdown("<h1 class='header'>About This App</h1>", unsafe_allow_html=True)
-    st.markdown("""
-        <div class="about-section">
-            <h3>Face Mask Detection App</h3>
-            <p>This application uses a deep learning model to detect whether a person in a photo is wearing a mask. The model has been trained on a large dataset of images and is capable of classifying images as either 'Mask' or 'No Mask'.</p>
-            <p>It is designed to help in environments where face masks are required, such as health-related settings and public spaces. Simply upload an image, and the model will predict whether the person in the image is wearing a mask or not.</p>
+    st.markdown(f"""
+        <div class="prediction">
+            <h4>Prediction Result</h4>
+            <p>{prediction_text}</p>
         </div>
     """, unsafe_allow_html=True)
