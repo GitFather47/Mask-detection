@@ -1,23 +1,17 @@
 import streamlit as st
 import numpy as np
-from tensorflow import keras
+from keras.models import load_model
 from PIL import Image
 
 # Load the trained model
-model = keras.models.load_model('mask.keras')
+model = load_model('mask.keras')
 
 # Function to preprocess the image
 def preprocess_image(image):
-    # Convert image to RGB (if not already)
-    image = image.convert("RGB")
-    # Resize to match model input
+    # Convert image to numpy array and resize
     image_resized = image.resize((128, 128))
-    # Convert to numpy array
-    image_array = np.array(image_resized)
-    # Scale pixel values
-    image_scaled = image_array / 255.0
-    # Reshape for model input
-    image_reshaped = np.reshape(image_scaled, [1, 128, 128, 3])
+    image_array = np.array(image_resized) / 255.0  # Normalize pixel values
+    image_reshaped = np.reshape(image_array, [1, 128, 128, 3])  # Reshape for model input
     return image_reshaped
 
 # Streamlit app
