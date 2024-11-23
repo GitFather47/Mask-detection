@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-import cv2
 from tensorflow import keras
 from PIL import Image
 
@@ -9,10 +8,16 @@ model = keras.models.load_model('mask.keras')
 
 # Function to preprocess the image
 def preprocess_image(image):
-    image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)  # Convert RGB to BGR
-    image_resized = cv2.resize(image, (128, 128))  # Resize to match model input
-    image_scaled = image_resized / 255.0  # Scale pixel values
-    image_reshaped = np.reshape(image_scaled, [1, 128, 128, 3])  # Reshape for model input
+    # Convert image to RGB (if not already)
+    image = image.convert("RGB")
+    # Resize to match model input
+    image_resized = image.resize((128, 128))
+    # Convert to numpy array
+    image_array = np.array(image_resized)
+    # Scale pixel values
+    image_scaled = image_array / 255.0
+    # Reshape for model input
+    image_reshaped = np.reshape(image_scaled, [1, 128, 128, 3])
     return image_reshaped
 
 # Streamlit app
