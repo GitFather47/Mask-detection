@@ -7,19 +7,18 @@ from PIL import Image
 import base64
 from io import BytesIO
 
-# Load the trained Keras model (replace with the correct .keras file)
-model = load_model('mask.keras')  # Load the Keras model
 
-# Function to preprocess the image
+model = load_model('mask.keras')  
+
+
 def preprocess_image(image):
-    # Resize the image to match the model's expected input shape (e.g., 224x224)
-    target_size = (128, 128)  # Change this to the input size expected by your model
+    target_size = (128, 128)  
     image = image.resize(target_size)
     
     # Define the transformation
-    preprocess = keras_image.img_to_array(image)  # Convert image to array
-    preprocess = np.expand_dims(preprocess, axis=0)  # Add an extra dimension (for batch size)
-    preprocess = preprocess / 255.0  # Normalize to [0, 1]
+    preprocess = keras_image.img_to_array(image) 
+    preprocess = np.expand_dims(preprocess, axis=0)  
+    preprocess = preprocess / 255.0  #
     return preprocess
 
 # Function to convert an image to base64 for custom HTML embedding
@@ -29,7 +28,6 @@ def image_to_base64(image):
     img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return img_str
 
-# Streamlit app styling using markdown and custom CSS
 st.markdown("""
     <style>
         body {
