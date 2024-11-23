@@ -4,6 +4,8 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image as keras_image
 from tensorflow.keras.models import load_model
 from PIL import Image
+import base64
+from io import BytesIO
 
 # Load the trained Keras model (replace with the correct .keras file)
 model = load_model('mask.keras')  # Load the Keras model
@@ -19,6 +21,13 @@ def preprocess_image(image):
     preprocess = np.expand_dims(preprocess, axis=0)  # Add an extra dimension (for batch size)
     preprocess = preprocess / 255.0  # Normalize to [0, 1]
     return preprocess
+
+# Function to convert an image to base64 for custom HTML embedding
+def image_to_base64(image):
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
 
 # Streamlit app styling using markdown and custom CSS
 st.markdown("""
@@ -97,7 +106,8 @@ if nav_option == "Home":
     if uploaded_file is not None:
         # Display the uploaded image with custom styling
         image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Image', use_column_width=True, class_="uploaded-image")
+        img_str = image_to_base64(image)
+        st.markdown(f'<img src="data:image/png;base64,{img_str}" class="uploaded-image"/>', unsafe_allow_html=True)
         
         # Preprocess the image
         input_image_reshaped = preprocess_image(image)
@@ -126,16 +136,16 @@ elif nav_option == "About":
     st.markdown("""
         <div class="about-section">
             <h3>Face Mask Detection App</h3>
-            <p>This application uses a CNN model to detect whether a person in a photo is wearing a mask. The model has been trained on a  dataset of images and is capable of classifying images as either 'Mask' or 'No Mask'.</p>
+            <p>This application uses a CNN model to detect whether a person in a photo is wearing a mask. The model has been trained on a dataset of images and is capable of classifying images as either 'Mask' or 'No Mask'.</p>
             <p>It is designed to help in environments where face masks are required, such as health-related settings and public spaces. Simply upload an image, and the model will predict whether the person in the image is wearing a mask or not.
             Dataset link: https://www.kaggle.com/datasets/omkargurav/face-mask-dataset</p>
         </div>
     """, unsafe_allow_html=True)
-    st.write( "#### Credits:")
+    st.write("#### Credits:")
     image_path = "about.jpg"
     st.image(image_path)
-    st.write( "Arnob Aich Anurag")
-    st.write( "Student at American International University Bangladesh")
-    st.write( "Dhaka,Bangladesh")
-    st.write( "For more information, please contact me at my email.")
-    st.write("Email:aicharnob@gmail.com")
+    st.write("Arnob Aich Anurag")
+    st.write("Student at American International University Bangladesh")
+    st.write("Dhaka, Bangladesh")
+    st.write("For more information, please contact me at my email.")
+    st.write("Email: aicharnob@gmail.com")
