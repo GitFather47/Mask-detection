@@ -1,0 +1,524 @@
+﻿!pip install kaggle
+Requirement already satisfied: kaggle in /usr/local/lib/python3.10/dist-packages (1.6.17)
+Requirement already satisfied: six>=1.10 in /usr/local/lib/python3.10/dist-packages (from kaggle) (1.16.0)
+Requirement already satisfied: certifi>=2023.7.22 in /usr/local/lib/python3.10/dist-packages (from kaggle) (2024.8.30)
+Requirement already satisfied: python-dateutil in /usr/local/lib/python3.10/dist-packages (from kaggle) (2.8.2)
+Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (from kaggle) (2.32.3)
+Requirement already satisfied: tqdm in /usr/local/lib/python3.10/dist-packages (from kaggle) (4.66.6)
+Requirement already satisfied: python-slugify in /usr/local/lib/python3.10/dist-packages (from kaggle) (8.0.4)
+Requirement already satisfied: urllib3 in /usr/local/lib/python3.10/dist-packages (from kaggle) (2.2.3)
+Requirement already satisfied: bleach in /usr/local/lib/python3.10/dist-packages (from kaggle) (6.2.0)
+Requirement already satisfied: webencodings in /usr/local/lib/python3.10/dist-packages (from bleach->kaggle) (0.5.1)
+Requirement already satisfied: text-unidecode>=1.3 in /usr/local/lib/python3.10/dist-packages (from python-slugify->kaggle) (1.3)
+Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests->kaggle) (3.4.0)
+Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests->kaggle) (3.10)
+# configuring the path of Kaggle.json file
+!mkdir -p ~/.kaggle
+!cp kaggle.json ~/.kaggle/
+!chmod 600 ~/.kaggle/kaggle.json
+cp: cannot stat 'kaggle.json': No such file or directory
+chmod: cannot access '/root/.kaggle/kaggle.json': No such file or directory
+# API to fetch the dataset from Kaggle
+!kaggle datasets download -d omkargurav/face-mask-dataset
+Dataset URL: https://www.kaggle.com/datasets/omkargurav/face-mask-dataset
+License(s): unknown
+Downloading face-mask-dataset.zip to /content
+ 99% 161M/163M [00:01<00:00, 125MB/s]
+100% 163M/163M [00:01<00:00, 127MB/s]
+# extracting the compessed Dataset
+from zipfile import ZipFile
+dataset = '/content/face-mask-dataset.zip'
+
+with ZipFile(dataset,'r') as zip:
+  zip.extractall()
+  print('The dataset is extracted')
+The dataset is extracted
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import cv2
+from google.colab.patches import cv2_imshow
+from PIL import Image
+from sklearn.model_selection import train_test_split
+with_mask_files = os.listdir('/content/data/with_mask')
+print(with_mask_files[0:5])
+print(with_mask_files[-5:])
+['with_mask_1209.jpg', 'with_mask_2099.jpg', 'with_mask_1539.jpg', 'with_mask_1105.jpg', 'with_mask_2282.jpg']
+['with_mask_3467.jpg', 'with_mask_1132.jpg', 'with_mask_495.jpg', 'with_mask_108.jpg', 'with_mask_1954.jpg']
+without_mask_files = os.listdir('/content/data/without_mask')
+print(without_mask_files[0:5])
+print(without_mask_files[-5:])
+['without_mask_3045.jpg', 'without_mask_2225.jpg', 'without_mask_3274.jpg', 'without_mask_3581.jpg', 'without_mask_2577.jpg']
+['without_mask_1551.jpg', 'without_mask_244.jpg', 'without_mask_1804.jpg', 'without_mask_2241.jpg', 'without_mask_2685.jpg']
+print('Number of with mask images:', len(with_mask_files))
+print('Number of without mask images:', len(without_mask_files))
+Number of with mask images: 3725
+Number of without mask images: 3828
+with mask --> 1
+without mask --> 0
+# create the labels
+
+with_mask_labels = [1]*3725
+
+without_mask_labels = [0]*3828
+print(with_mask_labels[0:5])
+
+print(without_mask_labels[0:5])
+[1, 1, 1, 1, 1]
+[0, 0, 0, 0, 0]
+print(len(with_mask_labels))
+print(len(without_mask_labels))
+3725
+3828
+labels = with_mask_labels + without_mask_labels
+
+print(len(labels))
+print(labels[0:5])
+print(labels[-5:])
+7553
+[1, 1, 1, 1, 1]
+[0, 0, 0, 0, 0]
+Displaying the Images
+# displaying with mask image
+img = mpimg.imread('/content/data/with_mask/with_mask_1541.jpg')
+imgplot = plt.imshow(img)
+plt.show()
+
+# displaying without mask image
+img = mpimg.imread('/content/data/without_mask/without_mask_2920.jpg')
+imgplot = plt.imshow(img)
+plt.show()
+
+# convert images to numpy arrays+
+
+with_mask_path = '/content/data/with_mask/'
+
+data = []
+
+for img_file in with_mask_files:
+
+  image = Image.open(with_mask_path + img_file)
+  image = image.resize((128,128))
+  image = image.convert('RGB')
+  image = np.array(image)
+  data.append(image)
+
+
+
+without_mask_path = '/content/data/without_mask/'
+
+
+for img_file in without_mask_files:
+
+  image = Image.open(without_mask_path + img_file)
+  image = image.resize((128,128))
+  image = image.convert('RGB')
+  image = np.array(image)
+  data.append(image)
+/usr/local/lib/python3.10/dist-packages/PIL/Image.py:1054: UserWarning: Palette images with Transparency expressed in bytes should be converted to RGBA images
+  warnings.warn(
+type(data)
+list
+len(data)
+7553
+data[0]
+array([[[ 42,  49,  41],
+        [ 44,  51,  43],
+        [ 51,  58,  50],
+        ...,
+        [ 50,  36,  40],
+        [ 52,  37,  40],
+        [ 53,  37,  40]],
+
+       [[ 42,  49,  41],
+        [ 44,  51,  43],
+        [ 50,  57,  49],
+        ...,
+        [ 47,  33,  37],
+        [ 49,  34,  37],
+        [ 49,  34,  37]],
+
+       [[ 42,  49,  41],
+        [ 43,  50,  42],
+        [ 47,  54,  47],
+        ...,
+        [ 40,  28,  33],
+        [ 41,  28,  32],
+        [ 41,  28,  32]],
+
+       ...,
+
+       [[253, 250, 246],
+        [254, 250, 245],
+        [255, 249, 244],
+        ...,
+        [218, 193,  87],
+        [218, 193,  87],
+        [218, 193,  87]],
+
+       [[249, 245, 242],
+        [250, 246, 243],
+        [252, 249, 245],
+        ...,
+        [219, 194,  89],
+        [220, 194,  89],
+        [220, 194,  89]],
+
+       [[247, 243, 241],
+        [248, 245, 242],
+        [251, 249, 245],
+        ...,
+        [220, 194,  89],
+        [221, 194,  89],
+        [221, 194,  89]]], dtype=uint8)
+type(data[0])
+numpy.ndarray
+data[0].shape
+(128, 128, 3)
+# converting image list and label list to numpy arrays
+
+X = np.array(data)
+Y = np.array(labels)
+type(X)
+numpy.ndarray
+type(Y)
+numpy.ndarray
+print(X.shape)
+print(Y.shape)
+(7553, 128, 128, 3)
+(7553,)
+print(Y)
+[1 1 1 ... 0 0 0]
+Train Test Split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=2)
+print(X.shape, X_train.shape, X_test.shape)
+(7553, 128, 128, 3) (6042, 128, 128, 3) (1511, 128, 128, 3)
+# scaling the data
+
+X_train_scaled = X_train/255
+
+X_test_scaled = X_test/255
+X_train[0]
+array([[[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]],
+
+       [[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]],
+
+       [[255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255],
+        ...,
+        [255, 255, 255],
+        [255, 255, 255],
+        [255, 255, 255]],
+
+       ...,
+
+       [[229, 233, 234],
+        [221, 225, 226],
+        [212, 216, 217],
+        ...,
+        [247, 247, 247],
+        [246, 246, 246],
+        [246, 246, 246]],
+
+       [[228, 232, 233],
+        [220, 224, 225],
+        [211, 215, 216],
+        ...,
+        [246, 246, 246],
+        [245, 245, 245],
+        [245, 245, 245]],
+
+       [[227, 231, 232],
+        [219, 223, 224],
+        [210, 214, 215],
+        ...,
+        [245, 245, 245],
+        [244, 244, 244],
+        [244, 244, 244]]], dtype=uint8)
+X_train_scaled[0]
+array([[[1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        ...,
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ]],
+
+       [[1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        ...,
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ]],
+
+       [[1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        ...,
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ],
+        [1.        , 1.        , 1.        ]],
+
+       ...,
+
+       [[0.89803922, 0.91372549, 0.91764706],
+        [0.86666667, 0.88235294, 0.88627451],
+        [0.83137255, 0.84705882, 0.85098039],
+        ...,
+        [0.96862745, 0.96862745, 0.96862745],
+        [0.96470588, 0.96470588, 0.96470588],
+        [0.96470588, 0.96470588, 0.96470588]],
+
+       [[0.89411765, 0.90980392, 0.91372549],
+        [0.8627451 , 0.87843137, 0.88235294],
+        [0.82745098, 0.84313725, 0.84705882],
+        ...,
+        [0.96470588, 0.96470588, 0.96470588],
+        [0.96078431, 0.96078431, 0.96078431],
+        [0.96078431, 0.96078431, 0.96078431]],
+
+       [[0.89019608, 0.90588235, 0.90980392],
+        [0.85882353, 0.8745098 , 0.87843137],
+        [0.82352941, 0.83921569, 0.84313725],
+        ...,
+        [0.96078431, 0.96078431, 0.96078431],
+        [0.95686275, 0.95686275, 0.95686275],
+        [0.95686275, 0.95686275, 0.95686275]]])
+Building a Convolutional Neural Networks (CNN)
+import tensorflow as tf
+from tensorflow import keras
+num_of_classes = 2
+
+model = keras.Sequential()
+
+model.add(keras.layers.Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(128,128,3)))
+model.add(keras.layers.MaxPooling2D(pool_size=(2,2)))
+
+
+model.add(keras.layers.Conv2D(64, kernel_size=(3,3), activation='relu'))
+model.add(keras.layers.MaxPooling2D(pool_size=(2,2)))
+
+model.add(keras.layers.Flatten())
+
+model.add(keras.layers.Dense(128, activation='relu'))
+model.add(keras.layers.Dropout(0.5))
+
+model.add(keras.layers.Dense(64, activation='relu'))
+model.add(keras.layers.Dropout(0.5))
+
+
+model.add(keras.layers.Dense(num_of_classes, activation='sigmoid'))
+/usr/local/lib/python3.10/dist-packages/keras/src/layers/convolutional/base_conv.py:107: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+# compile the neural network
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['acc'])
+# training the neural network
+history = model.fit(X_train_scaled, Y_train, validation_split=0.1, epochs=50)
+Epoch 1/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 17ms/step - acc: 0.9423 - loss: 0.1424 - val_acc: 0.9339 - val_loss: 0.2110
+Epoch 2/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9516 - loss: 0.1261 - val_acc: 0.9256 - val_loss: 0.2155
+Epoch 3/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9572 - loss: 0.1123 - val_acc: 0.9306 - val_loss: 0.2396
+Epoch 4/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9631 - loss: 0.0998 - val_acc: 0.9322 - val_loss: 0.2271
+Epoch 5/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 17ms/step - acc: 0.9578 - loss: 0.1098 - val_acc: 0.9289 - val_loss: 0.2594
+Epoch 6/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9729 - loss: 0.0773 - val_acc: 0.9273 - val_loss: 0.2706
+Epoch 7/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9712 - loss: 0.0781 - val_acc: 0.9256 - val_loss: 0.2923
+Epoch 8/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9770 - loss: 0.0599 - val_acc: 0.9256 - val_loss: 0.3653
+Epoch 9/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 17ms/step - acc: 0.9767 - loss: 0.0623 - val_acc: 0.9289 - val_loss: 0.3305
+Epoch 10/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9784 - loss: 0.0529 - val_acc: 0.9306 - val_loss: 0.4005
+Epoch 11/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9808 - loss: 0.0514 - val_acc: 0.9174 - val_loss: 0.4415
+Epoch 12/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9879 - loss: 0.0359 - val_acc: 0.9190 - val_loss: 0.3540
+Epoch 13/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 16ms/step - acc: 0.9833 - loss: 0.0440 - val_acc: 0.9322 - val_loss: 0.3619
+Epoch 14/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9834 - loss: 0.0437 - val_acc: 0.9273 - val_loss: 0.4782
+Epoch 15/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9880 - loss: 0.0324 - val_acc: 0.9322 - val_loss: 0.4890
+Epoch 16/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9834 - loss: 0.0496 - val_acc: 0.9174 - val_loss: 0.4208
+Epoch 17/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9818 - loss: 0.0446 - val_acc: 0.9190 - val_loss: 0.5288
+Epoch 18/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9903 - loss: 0.0228 - val_acc: 0.9421 - val_loss: 0.3685
+Epoch 19/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9837 - loss: 0.0423 - val_acc: 0.9256 - val_loss: 0.5407
+Epoch 20/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9805 - loss: 0.0523 - val_acc: 0.9124 - val_loss: 0.3957
+Epoch 21/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9870 - loss: 0.0318 - val_acc: 0.9256 - val_loss: 0.4808
+Epoch 22/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9868 - loss: 0.0376 - val_acc: 0.9273 - val_loss: 0.4759
+Epoch 23/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 16ms/step - acc: 0.9918 - loss: 0.0233 - val_acc: 0.9207 - val_loss: 0.4984
+Epoch 24/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9934 - loss: 0.0167 - val_acc: 0.9322 - val_loss: 0.5938
+Epoch 25/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9912 - loss: 0.0270 - val_acc: 0.9289 - val_loss: 0.4924
+Epoch 26/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 16ms/step - acc: 0.9885 - loss: 0.0329 - val_acc: 0.9223 - val_loss: 0.4351
+Epoch 27/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9910 - loss: 0.0268 - val_acc: 0.9207 - val_loss: 0.6255
+Epoch 28/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9938 - loss: 0.0198 - val_acc: 0.9421 - val_loss: 0.4891
+Epoch 29/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9941 - loss: 0.0193 - val_acc: 0.9289 - val_loss: 0.5328
+Epoch 30/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 17ms/step - acc: 0.9898 - loss: 0.0307 - val_acc: 0.9223 - val_loss: 0.6122
+Epoch 31/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9795 - loss: 0.0617 - val_acc: 0.9190 - val_loss: 0.5105
+Epoch 32/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9918 - loss: 0.0250 - val_acc: 0.9289 - val_loss: 0.6311
+Epoch 33/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9910 - loss: 0.0191 - val_acc: 0.9322 - val_loss: 0.6119
+Epoch 34/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9841 - loss: 0.0465 - val_acc: 0.9289 - val_loss: 0.4711
+Epoch 35/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 17ms/step - acc: 0.9852 - loss: 0.0381 - val_acc: 0.9273 - val_loss: 0.5842
+Epoch 36/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 16ms/step - acc: 0.9929 - loss: 0.0198 - val_acc: 0.9372 - val_loss: 0.4467
+Epoch 37/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9940 - loss: 0.0195 - val_acc: 0.9339 - val_loss: 0.4385
+Epoch 38/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9946 - loss: 0.0150 - val_acc: 0.9256 - val_loss: 0.5134
+Epoch 39/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9863 - loss: 0.0397 - val_acc: 0.9256 - val_loss: 0.4711
+Epoch 40/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 17ms/step - acc: 0.9948 - loss: 0.0161 - val_acc: 0.9488 - val_loss: 0.4143
+Epoch 41/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9947 - loss: 0.0141 - val_acc: 0.9273 - val_loss: 0.6271
+Epoch 42/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9937 - loss: 0.0194 - val_acc: 0.9372 - val_loss: 0.4352
+Epoch 43/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 17ms/step - acc: 0.9912 - loss: 0.0251 - val_acc: 0.9322 - val_loss: 0.5393
+Epoch 44/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9920 - loss: 0.0229 - val_acc: 0.9339 - val_loss: 0.5025
+Epoch 45/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9964 - loss: 0.0106 - val_acc: 0.9339 - val_loss: 0.5579
+Epoch 46/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9937 - loss: 0.0171 - val_acc: 0.9289 - val_loss: 0.5335
+Epoch 47/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9935 - loss: 0.0188 - val_acc: 0.9355 - val_loss: 0.5302
+Epoch 48/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - acc: 0.9977 - loss: 0.0117 - val_acc: 0.9488 - val_loss: 0.6140
+Epoch 49/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 5s 16ms/step - acc: 0.9942 - loss: 0.0136 - val_acc: 0.9174 - val_loss: 0.5526
+Epoch 50/50
+170/170 ━━━━━━━━━━━━━━━━━━━━ 3s 15ms/step - acc: 0.9918 - loss: 0.0246 - val_acc: 0.9174 - val_loss: 0.5632
+Model Evaluation
+loss, accuracy = model.evaluate(X_test_scaled, Y_test)
+print('Test Accuracy =', accuracy)
+48/48 ━━━━━━━━━━━━━━━━━━━━ 0s 6ms/step - acc: 0.9320 - loss: 0.3960
+Test Accuracy = 0.9291859865188599
+h = history
+
+# plot the loss value
+plt.plot(h.history['loss'], label='train loss')
+plt.plot(h.history['val_loss'], label='validation loss')
+plt.legend()
+plt.show()
+
+# plot the accuracy value
+plt.plot(h.history['acc'], label='train accuracy')
+plt.plot(h.history['val_acc'], label='validation accuracy')
+plt.legend()
+plt.show()
+
+
+Predictive System
+input_image_path = input('Path of the image to be predicted: ')
+
+input_image = cv2.imread(input_image_path)
+
+cv2_imshow(input_image)
+
+input_image_resized = cv2.resize(input_image, (128,128))
+
+input_image_scaled = input_image_resized/255
+
+input_image_reshaped = np.reshape(input_image_scaled, [1,128,128,3])
+
+input_prediction = model.predict(input_image_reshaped)
+
+print(input_prediction)
+
+
+input_pred_label = np.argmax(input_prediction)
+
+print(input_pred_label)
+
+
+if input_pred_label == 1:
+
+  print('The person in the image is not wearing a mask')
+
+else:
+
+  print('The person in the image is wearing a mask')
+Path of the image to be predicted: /content/businesswoman-commuting-by-bus-while-wearing-surgical-mask.webp
+
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 30ms/step
+[[1.         0.21115723]]
+0
+The person in the image is not wearing a mask
+input_image_path = input('Path of the image to be predicted: ')
+
+input_image = cv2.imread(input_image_path)
+
+cv2_imshow(input_image)
+
+input_image_resized = cv2.resize(input_image, (128,128))
+
+input_image_scaled = input_image_resized/255
+
+input_image_reshaped = np.reshape(input_image_scaled, [1,128,128,3])
+
+input_prediction = model.predict(input_image_reshaped)
+
+print(input_prediction)
+
+
+input_pred_label = np.argmax(input_prediction)
+
+print(input_pred_label)
+
+if input_pred_label == 1:
+
+  print('The person in the image is not wearing a mask')
+
+else:
+
+  print('The person in the image is wearing a mask')
+Path of the image to be predicted: /content/businesswoman-commuting-by-bus-while-wearing-surgical-mask.webp
+
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 32ms/step
+[[1.         0.21115723]]
+0
+The person in the image is wearing a mask
+model.save('mask.keras')
