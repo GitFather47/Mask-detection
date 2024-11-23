@@ -139,14 +139,3 @@ elif nav_option == "About":
     st.write( "Dhaka,Bangladesh")
     st.write( "For more information, please contact me at my email.")
     st.write("Email:aicharnob@gmail.com")TypeError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
-Traceback:
-File "/home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 88, in exec_func_with_error_handling
-    result = func()
-             ^^^^^^
-File "/home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 579, in code_to_exec
-    exec(code, module.__dict__)
-File "/mount/src/mask-detection/mask.py", line 100, in <module>
-    st.image(image, caption='Uploaded Image', use_column_width=True, class_="uploaded-image")
-File "/home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/metrics_util.py", line 410, in wrapped_func
-    result = non_optional_func(*args, **kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
