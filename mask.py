@@ -6,10 +6,14 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 
 # Load the trained Keras model (replace with the correct .keras file)
-model = load_model('mask.keras')  # Load the Keras model
+model = load_model('mask_model.keras')  # Load the Keras model
 
 # Function to preprocess the image
 def preprocess_image(image):
+    # Resize the image to match the model's expected input shape (e.g., 224x224)
+    target_size = (128, 128)  # Change this to the input size expected by your model
+    image = image.resize(target_size)
+    
     # Define the transformation
     preprocess = keras_image.img_to_array(image)  # Convert image to array
     preprocess = np.expand_dims(preprocess, axis=0)  # Add an extra dimension (for batch size)
