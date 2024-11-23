@@ -134,8 +134,8 @@ elif nav_option == "About":
             <h3>Face Mask Detection App</h3>
             <p>This application uses a CNN model to detect whether a person in a photo is wearing a mask. The model has been trained on a dataset of images and is capable of classifying images as either 'Mask' or 'No Mask'.</p>
             <p>It is designed to help in environments where face masks are required, such as health-related settings and public spaces. Simply upload an image, and the model will predict whether the person in the image is wearing a mask or not.
-            Dataset link: https://www.kaggle.com/datasets/omkargurav/face-mask-dataset
-            Disclaimer: While MaskMate is designed to detect face masks using a machine learning model, it may not always provide accurate results. The model's performance can be affected by factors such as image quality, lighting conditions, angle, and the clarity of the face mask</p>
+            Dataset link: https://www.kaggle.com/datasets/omkargurav/face-mask-dataset</p>
+            <p>Disclaimer: While MaskMate is designed to detect face masks using a machine learning model, it may not always provide accurate results. The model's performance can be affected by factors such as image quality, lighting conditions, angle, and the clarity of the face mask</p>
         </div>
     """, unsafe_allow_html=True)
     st.write("#### Credits:")
