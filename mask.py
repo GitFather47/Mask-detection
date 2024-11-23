@@ -88,16 +88,20 @@ nav_option = st.sidebar.radio("Go to:", ["Home", "About"])
 
 # Home Page: Face Mask Detection
 if nav_option == "Home":
-    st.markdown("<div style='text-align:center'><h1 class='header' style='font-family:Ink Free;'>MaskMate - Face Mask Detection😷</h1>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center'><h1 class='header' style='font-family:Ink Free;'>MaskMate - Face Mask Detection😷</h1></div>", unsafe_allow_html=True)
     st.write("Upload an image to check if the person is wearing a mask.")
     
     # Upload image section
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "webp"], key="image_uploader")
 
     if uploaded_file is not None:
-        # Display the uploaded image with custom styling
+        # Display the uploaded image with custom styling using HTML
         image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Image', use_column_width=True, class_="uploaded-image")
+        st.markdown(f"""
+            <div style='text-align:center'>
+                <img src="data:image/png;base64,{uploaded_file.getvalue().decode('utf-8')}" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-top: 20px;" width="80%"/>
+            </div>
+        """, unsafe_allow_html=True)
         
         # Preprocess the image
         input_image_reshaped = preprocess_image(image)
@@ -126,16 +130,15 @@ elif nav_option == "About":
     st.markdown("""
         <div class="about-section">
             <h3>Face Mask Detection App</h3>
-            <p>This application uses a CNN model to detect whether a person in a photo is wearing a mask. The model has been trained on a  dataset of images and is capable of classifying images as either 'Mask' or 'No Mask'.</p>
+            <p>This application uses a CNN model to detect whether a person in a photo is wearing a mask. The model has been trained on a dataset of images and is capable of classifying images as either 'Mask' or 'No Mask'.</p>
             <p>It is designed to help in environments where face masks are required, such as health-related settings and public spaces. Simply upload an image, and the model will predict whether the person in the image is wearing a mask or not.
             Dataset link: https://www.kaggle.com/datasets/omkargurav/face-mask-dataset</p>
         </div>
     """, unsafe_allow_html=True)
-    st.write( "#### Credits:")
-    image_path = "about.jpg"
-    st.image(image_path)
-    st.write( "Arnob Aich Anurag")
-    st.write( "Student at American International University Bangladesh")
-    st.write( "Dhaka,Bangladesh")
-    st.write( "For more information, please contact me at my email.")
-    st.write("Email:aicharnob@gmail.com")
+    st.write("#### Credits:")
+    st.image("about.jpg")
+    st.write("Arnob Aich Anurag")
+    st.write("Student at American International University Bangladesh")
+    st.write("Dhaka, Bangladesh")
+    st.write("For more information, please contact me at my email.")
+    st.write("Email: aicharnob@gmail.com")
