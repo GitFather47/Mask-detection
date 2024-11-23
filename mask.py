@@ -100,7 +100,7 @@ if nav_option == "Home":
     st.write("Upload an image to check if the person is wearing a mask.")
     
     # Upload image section
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png", "webp"], key="image_uploader")
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"], key="image_uploader")
 
     if uploaded_file is not None:
         # Display the uploaded image with custom styling
