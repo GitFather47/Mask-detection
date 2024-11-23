@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from PIL import Image
 
 # Load the trained model
@@ -11,7 +11,8 @@ def preprocess_image(image):
     # Convert image to numpy array and resize
     image_resized = image.resize((128, 128))
     image_array = np.array(image_resized) / 255.0  # Normalize pixel values
-    image_reshaped = np.reshape(image_array, [1, 128, 128, 3])  # Reshape for model input
+    # Add an extra dimension (for batch size) and ensure shape is [1, 128, 128, 3]
+    image_reshaped = np.expand_dims(image_array, axis=0)  # Adds a batch dimension
     return image_reshaped
 
 # Streamlit app
