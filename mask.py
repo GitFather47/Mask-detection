@@ -1,18 +1,25 @@
 import streamlit as st
 import numpy as np
-from tensorflow.keras.models import load_model
+import torch
+from torchvision import transforms
 from PIL import Image
 
-# Load the trained model
-model = load_model('mask.keras')
+# Load the trained model (replace with .pt or .pth file)
+model = torch.load('mask_model.pth')  # Load the PyTorch model
+model.eval()  # Set the model to evaluation mode
 
 # Function to preprocess the image
 def preprocess_image(image):
-    # Convert image to numpy array and resize
-    image_resized = image.resize((128, 128))
-    image_array = np.array(image_resized) / 255.0  # Normalize pixel values
-    # Add an extra dimension (for batch size) and ensure shape is [1, 128, 128, 3]
-    image_reshaped = np.expand_dims(image_array, axis=0)  # Adds a batch dimension
+    # Define the transformation
+    preprocess = transforms.Compose([
+        transforms.Resize((128, 128)),
+        transforms.ToTensor(),  # Convert image to tensor
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalize
+    ])
+    # Apply the transformations
+    image_tensor = preprocess(image)
+    # Add an extra dimension (for batch size) and ensure shape is [1, 3, 128, 128]
+    image_reshaped = image_tensor.unsqueeze(0)  # Adds a batch dimension
     return image_reshaped
 
 # Streamlit app
@@ -31,8 +38,9 @@ if uploaded_file is not None:
     input_image_reshaped = preprocess_image(image)
 
     # Make prediction
-    input_prediction = model.predict(input_image_reshaped)
-    input_pred_label = np.argmax(input_prediction)
+    with torch.no_grad():  # Disable gradient calculation
+        input_prediction = model(input_image_reshaped)
+        input_pred_label = torch.argmax(input_prediction).item()  # Get the predicted class index
 
     # Display result
     if input_pred_label == 1:
