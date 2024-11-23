@@ -61,7 +61,6 @@ st.markdown("""
             margin-top: 20px;
         }
         .prediction {
-            background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -119,9 +118,9 @@ if nav_option == "Home":
         # Display prediction result with styling
         prediction_text = ""
         if input_pred_label == 1:
-            prediction_text = "The person in the image is **not wearing a mask**."
+            prediction_text = "The person in the image is not wearing a mask."
         else:
-            prediction_text = "The person in the image is **wearing a mask**."
+            prediction_text = "The person in the image is wearing a mask."
 
         st.markdown(f"""
             <div class="prediction">
