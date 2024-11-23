@@ -71,7 +71,6 @@ st.markdown("""
             text-align: center;
         }
         .about-section {
-            background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             margin-top: 30px;
@@ -89,7 +88,7 @@ nav_option = st.sidebar.radio("Go to:", ["Home", "About"])
 
 # Home Page: Face Mask Detection
 if nav_option == "Home":
-    st.markdown("<h1 class='header'>Face Mask Detection</h1>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center'><h1 class='header' style='font-family:Ink Free;'>Face Mask Detection😷</h1>", unsafe_allow_html=True)
     st.write("Upload an image to check if the person is wearing a mask.")
     
     # Upload image section
