@@ -115,9 +115,9 @@ if nav_option == "Home":
         
         prediction_text = ""
         if input_pred_label == 1:
-            prediction_text = "The person in the image is not wearing a mask."
-        else:
             prediction_text = "The person in the image is wearing a mask."
+        else:
+            prediction_text = "The person in the image is  not wearing a mask."
 
         st.markdown(f"""
             <div class="prediction">
