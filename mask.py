@@ -7,7 +7,6 @@ from PIL import Image
 import base64
 from io import BytesIO
 
-
 model = load_model('mask.keras')  
 
 
@@ -110,10 +109,10 @@ if nav_option == "Home":
         input_image_reshaped = preprocess_image(image)
 
         # Make prediction
-        prediction = model.predict(input_image_reshaped)  # Predict using the Keras model
-        input_pred_label = np.argmax(prediction, axis=1).item()  # Get the predicted class index
+        prediction = model.predict(input_image_reshaped)  
+        input_pred_label = np.argmax(prediction, axis=1).item()  
 
-        # Display prediction result with styling
+        
         prediction_text = ""
         if input_pred_label == 1:
             prediction_text = "The person in the image is not wearing a mask."
